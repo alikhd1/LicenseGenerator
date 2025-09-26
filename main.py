@@ -111,7 +111,7 @@ class LicenseApp(QtWidgets.QWidget):
                 body {{ font-family: Tahoma, sans-serif; text-align: center; }}
                 .license {{ margin: 30px 0; }}
                 .title {{ font-size: 16px; font-weight: bold; margin-bottom: 10px; }}
-                .license-code {{ font-size: 14px; margin-top: 5px; }}
+                .license-code {{ font-size: 14px; font-weight: bolder; margin-top: 5px; color: black; }}
                 .site {{ font-size: 14px; font-weight: bolder; margin-top: 5px; color: black; }}
             </style>
         </head>
@@ -121,6 +121,7 @@ class LicenseApp(QtWidgets.QWidget):
                 
                 <img src="{qr_b64}" width="220" height="220" />
                 <div class="license-code">{new_key}</div>
+                <div class="site">دریافت نرم افزار</div>
                 <div class="site">www.bans.ir/adad</div>
             </div>
         </body>
@@ -131,9 +132,7 @@ class LicenseApp(QtWidgets.QWidget):
         web.setHtml(html)
 
         def print_callback(success):
-            if success:
-                QMessageBox.information(self, "پرینت شد", "لایسنس با موفقیت چاپ شد.")
-            else:
+            if not success:
                 QMessageBox.warning(self, "خطا", "پرینت انجام نشد.")
 
         def do_print():
