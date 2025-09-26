@@ -1,6 +1,5 @@
 import random
 import sys
-import secrets
 import string
 from datetime import datetime
 import base64
@@ -15,6 +14,8 @@ from PyQt5.QtWidgets import (
     QPushButton,
     QVBoxLayout,
     QMessageBox,
+    QSpinBox,
+    QHBoxLayout,
 )
 from PyQt5.QtPrintSupport import QPrinter, QPrintDialog
 from PyQt5.QtWebEngineWidgets import QWebEngineView
@@ -37,10 +38,10 @@ Session = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
 Base.metadata.create_all(engine)
 
 # ---------- Helpers ----------
-def generate_license_key(parts: int = 4, part_len: int = 5) -> str:
+def generate_license_key(length: int = 16) -> str:
     """Generate a random string with letters and numbers."""
-    characters = string.ascii_uppercase + string.digits  # A-Z, a-z, 0-9
-    return ''.join(random.choices(characters, k=16))
+    characters = string.ascii_uppercase + string.digits
+    return ''.join(random.choices(characters, k=length))
 
 def make_qr_base64(data: str) -> str:
     img = qrcode.make(data)
@@ -54,13 +55,23 @@ class LicenseApp(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("License Generator")
-        self.resize(400, 200)
+        self.resize(400, 250)
 
         self.printer = None  # پرینتر انتخابی کاربر
 
         self.title_label = QLabel("لایسنس ۳ ماهه رایگان")
         self.title_label.setStyleSheet("font-size: 18px; font-weight: bold; text-align:center")
         self.title_label.setAlignment(Qt.AlignCenter)
+
+        # فیلد عددی (QSpinBox)
+        self.count_label = QLabel("تعداد لایسنس:")
+        self.count_spin = QSpinBox()
+        self.count_spin.setRange(1, 100)
+        self.count_spin.setValue(1)
+
+        count_layout = QHBoxLayout()
+        count_layout.addWidget(self.count_label)
+        count_layout.addWidget(self.count_spin)
 
         self.select_printer_btn = QPushButton("انتخاب پرینتر")
         self.select_printer_btn.clicked.connect(self.select_printer)
@@ -70,6 +81,7 @@ class LicenseApp(QtWidgets.QWidget):
 
         layout = QVBoxLayout()
         layout.addWidget(self.title_label)
+        layout.addLayout(count_layout)
         layout.addWidget(self.select_printer_btn)
         layout.addWidget(self.generate_print_btn)
         self.setLayout(layout)
@@ -145,6 +157,7 @@ class LicenseApp(QtWidgets.QWidget):
                 page.print(self.printer, print_callback)
 
             web.loadFinished.connect(lambda ok, w=web: do_print())
+
 # ---------- Main ----------
 def main():
     app = QApplication(sys.argv)
