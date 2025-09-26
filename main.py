@@ -1,3 +1,4 @@
+import random
 import sys
 import secrets
 import string
@@ -37,9 +38,9 @@ Base.metadata.create_all(engine)
 
 # ---------- Helpers ----------
 def generate_license_key(parts: int = 4, part_len: int = 5) -> str:
-    alphabet = string.ascii_uppercase + string.digits
-    groups = ["".join(secrets.choice(alphabet) for _ in range(part_len)) for _ in range(parts)]
-    return "-".join(groups)
+    """Generate a random string with letters and numbers."""
+    characters = string.ascii_uppercase + string.digits  # A-Z, a-z, 0-9
+    return ''.join(random.choices(characters, k=16))
 
 def make_qr_base64(data: str) -> str:
     img = qrcode.make(data)
@@ -111,15 +112,16 @@ class LicenseApp(QtWidgets.QWidget):
                 .license {{ margin: 30px 0; }}
                 .title {{ font-size: 16px; font-weight: bold; margin-bottom: 10px; }}
                 .license-code {{ font-size: 14px; margin-top: 5px; }}
-                .site {{ font-size: 12px; margin-top: 5px; color: gray; }}
+                .site {{ font-size: 14px; font-weight: bolder; margin-top: 5px; color: black; }}
             </style>
         </head>
         <body>
             <div class="license">
-                <div class="title">لایسنس ۳ ماهه رایگان.</div>
+                <div class="title">لایسنس ۳ ماهه رایگان</br> نرم افزار حسابداری عدد.</div>
+                
                 <img src="{qr_b64}" width="120" height="120" />
                 <div class="license-code">{new_key}</div>
-                <div class="site">www.example.com</div>
+                <div class="site">www.bans.ir</div>
             </div>
         </body>
         </html>
