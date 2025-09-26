@@ -86,11 +86,15 @@ class LicenseApp(QtWidgets.QWidget):
             QMessageBox.warning(self, "خطا", "لطفاً ابتدا پرینتر را انتخاب کنید.")
             return
 
+        count = self.count_spin.value()
         session = Session()
-        # تولید کلید
-        new_key = generate_license_key()
-        license_obj = License(license_key=new_key, created_at=datetime.utcnow())
-        session.add(license_obj)
+        new_keys = []
+
+        for _ in range(count):
+            new_key = generate_license_key()
+            license_obj = License(license_key=new_key, created_at=datetime.utcnow())
+            session.add(license_obj)
+            new_keys.append(new_key)
 
         try:
             session.commit()
@@ -101,46 +105,46 @@ class LicenseApp(QtWidgets.QWidget):
         finally:
             session.close()
 
-        # ساخت HTML برای پرینت
-        qr_b64 = make_qr_base64(new_key)
-        html = f"""
-        <html dir="rtl">
-        <head>
-            <meta charset="utf-8">
-            <style>
-                body {{ font-family: Tahoma, sans-serif; text-align: center; }}
-                .license {{ margin: 30px 0; }}
-                .title {{ font-size: 16px; font-weight: bold; margin-bottom: 10px; }}
-                .license-code {{ font-size: 14px; font-weight: bolder; margin-top: 5px; color: black; }}
-                .site {{ font-size: 14px; font-weight: bolder; margin-top: 5px; color: black; }}
-            </style>
-        </head>
-        <body>
-            <div class="license">
-                <div class="title">لایسنس ۳ ماهه رایگان</br> نرم افزار حسابداری عدد.</div>
-                
-                <img src="{qr_b64}" width="220" height="220" />
-                <div class="license-code">{new_key}</div>
-                <div class="site">دریافت نرم افزار</div>
-                <div class="site">www.bans.ir/adad</div>
-            </div>
-        </body>
-        </html>
-        """
+        # پرینت هر لایسنس به صورت جدا
+        for key in new_keys:
+            qr_b64 = make_qr_base64(key)
 
-        web = QWebEngineView()
-        web.setHtml(html)
+            html = f"""
+            <html dir="rtl">
+            <head>
+                <meta charset="utf-8">
+                <style>
+                    body {{ font-family: Tahoma, sans-serif; text-align: center; }}
+                    .license {{ margin: 30px 0; }}
+                    .title {{ font-size: 16px; font-weight: bold; margin-bottom: 10px; }}
+                    .license-code {{ font-size: 14px; font-weight: bolder; margin-top: 5px; color: black; }}
+                    .site {{ font-size: 14px; font-weight: bolder; margin-top: 5px; color: black; }}
+                </style>
+            </head>
+            <body>
+                <div class="license">
+                    <div class="title">لایسنس ۳ ماهه رایگان<br>نرم افزار حسابداری عدد.</div>
+                    <img src="{qr_b64}" width="220" height="220" />
+                    <div class="license-code">{key}</div>
+                    <div class="site">دریافت نرم افزار</div>
+                    <div class="site">www.bans.ir/adad</div>
+                </div>
+            </body>
+            </html>
+            """
 
-        def print_callback(success):
-            if not success:
-                QMessageBox.warning(self, "خطا", "پرینت انجام نشد.")
+            web = QWebEngineView()
+            web.setHtml(html)
 
-        def do_print():
-            page = web.page()
-            page.print(self.printer, print_callback)
+            def print_callback(success, k=key):
+                if not success:
+                    QMessageBox.warning(self, "خطا", f"پرینت لایسنس {k} انجام نشد.")
 
-        web.loadFinished.connect(lambda ok: do_print())
+            def do_print():
+                page = web.page()
+                page.print(self.printer, print_callback)
 
+            web.loadFinished.connect(lambda ok, w=web: do_print())
 # ---------- Main ----------
 def main():
     app = QApplication(sys.argv)
