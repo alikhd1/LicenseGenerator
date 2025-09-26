@@ -119,7 +119,7 @@ class LicenseApp(QtWidgets.QWidget):
             <div class="license">
                 <div class="title">لایسنس ۳ ماهه رایگان</br> نرم افزار حسابداری عدد.</div>
                 
-                <img src="{qr_b64}" width="120" height="120" />
+                <img src="{qr_b64}" width="220" height="220" />
                 <div class="license-code">{new_key}</div>
                 <div class="site">www.bans.ir/adad</div>
             </div>
