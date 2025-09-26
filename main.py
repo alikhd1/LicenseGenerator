@@ -121,7 +121,7 @@ class LicenseApp(QtWidgets.QWidget):
                 
                 <img src="{qr_b64}" width="120" height="120" />
                 <div class="license-code">{new_key}</div>
-                <div class="site">www.bans.ir</div>
+                <div class="site">www.bans.ir/adad</div>
             </div>
         </body>
         </html>
